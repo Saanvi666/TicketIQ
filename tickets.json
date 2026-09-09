@@ -1,0 +1,200 @@
+[
+    {
+        "ticket_id": "TKT-100001",
+        "customer_name": "Aarav",
+        "customer_email": "aarav@example.com",
+        "order_id": "ORD-10021",
+        "subject": "My package is delayed",
+        "message": "My package was supposed to arrive two days ago but the tracking still says it is in transit. Please check the delivery status.",
+        "category": "Shipping & Delivery",
+        "category_confidence": 99.53,
+        "priority": "Medium",
+        "priority_score": 30,
+        "priority_reasons": [
+            "Shipping & Delivery issue",
+            "delivery delay"
+        ],
+        "routing": "Auto-Routed",
+        "status": "New",
+        "agent_response": "",
+        "customer_confirmed": false,
+        "reviewed": true,
+        "created_at": "2026-09-09T09:00:00"
+    },
+    {
+        "ticket_id": "TKT-100002",
+        "customer_name": "Rahul",
+        "customer_email": "rahul@example.com",
+        "order_id": "ORD-10023",
+        "subject": "Urgent account security problem",
+        "message": "Someone accessed my account and I cannot log in. Please help me secure my account immediately.",
+        "category": "Account, Security & Login",
+        "category_confidence": 99.74,
+        "priority": "Urgent",
+        "priority_score": 125,
+        "priority_reasons": [
+            "Account, Security & Login issue",
+            "critical security/fraud issue",
+            "high customer impact",
+            "explicit urgency"
+        ],
+        "routing": "Auto-Routed",
+        "status": "New",
+        "agent_response": "",
+        "customer_confirmed": false,
+        "reviewed": true,
+        "created_at": "2026-09-09T09:05:00"
+    },
+    {
+        "ticket_id": "TKT-100003",
+        "customer_name": "Priya",
+        "customer_email": "priya@example.com",
+        "order_id": "ORD-78342",
+        "subject": "Payment was charged twice",
+        "message": "I was charged twice for the same order. Please check and refund the extra payment.",
+        "category": "Payment & Invoicing",
+        "category_confidence": 99.87,
+        "priority": "High",
+        "priority_score": 50,
+        "priority_reasons": [
+            "Payment & Invoicing issue",
+            "financial impact"
+        ],
+        "routing": "Auto-Routed",
+        "status": "Closed",
+        "agent_response": "We have identified the duplicate payment and initiated a refund for the extra charge.",
+        "customer_confirmed": true,
+        "reviewed": true,
+        "created_at": "2026-09-09T09:10:00"
+    },
+    {
+        "ticket_id": "TKT-100004",
+        "customer_name": "Ananya",
+        "customer_email": "ananya@example.com",
+        "order_id": "ORD-10024",
+        "subject": "I want to return my product",
+        "message": "I received the product but I would like to return it. Please tell me how I can start the return process.",
+        "category": "Returns, Refunds & Exchanges",
+        "category_confidence": 68.42,
+        "priority": "Low",
+        "priority_score": 10,
+        "priority_reasons": [
+            "Returns, Refunds & Exchanges issue"
+        ],
+        "routing": "Agent Review",
+        "status": "New",
+        "agent_response": "",
+        "customer_confirmed": false,
+        "reviewed": false,
+        "created_at": "2026-09-09T09:15:00"
+    },
+    {
+        "ticket_id": "TKT-100005",
+        "customer_name": "Rohan",
+        "customer_email": "rohan@example.com",
+        "order_id": "ORD-10025",
+        "subject": "Product information",
+        "message": "Can you provide more information about this product and its warranty coverage?",
+        "category": "Product, Warranty & Tech Specs",
+        "category_confidence": 91.25,
+        "priority": "Low",
+        "priority_score": 5,
+        "priority_reasons": [
+            "Product, Warranty & Tech Specs issue"
+        ],
+        "routing": "Auto-Routed",
+        "status": "New",
+        "agent_response": "",
+        "customer_confirmed": false,
+        "reviewed": true,
+        "created_at": "2026-09-09T09:20:00"
+    },
+    {
+        "ticket_id": "TKT-100006",
+        "customer_name": "Neha",
+        "customer_email": "neha@example.com",
+        "order_id": "ORD-10026",
+        "subject": "Package delivered but I did not receive it",
+        "message": "The tracking says my package was delivered, but I have not received it. Please help me locate my order.",
+        "category": "Shipping & Delivery",
+        "category_confidence": 97.64,
+        "priority": "High",
+        "priority_score": 50,
+        "priority_reasons": [
+            "Shipping & Delivery issue",
+            "high customer impact"
+        ],
+        "routing": "Auto-Routed",
+        "status": "Pending Customer",
+        "agent_response": "We have contacted the delivery team and are investigating the reported delivery issue. We will update you once we have more information.",
+        "customer_confirmed": false,
+        "reviewed": true,
+        "created_at": "2026-09-09T09:25:00"
+    },
+    {
+        "ticket_id": "TKT-1CE05E14",
+        "customer_name": "Aarav",
+        "customer_email": "aarav@example.com",
+        "order_id": "ORD-10021",
+        "subject": "My package is delayed",
+        "message": "My package was supposed to arrive two days ago but the tracking still says it is in transit. Please check the delivery status.",
+        "category": "Shipping & Delivery",
+        "category_confidence": 99.53,
+        "priority": "Medium",
+        "priority_score": 30,
+        "priority_reasons": [
+            "Shipping & Delivery issue",
+            "delivery delay"
+        ],
+        "routing": "Auto-Routed",
+        "status": "New",
+        "agent_response": "",
+        "customer_confirmed": false,
+        "reviewed": true,
+        "created_at": "2026-09-09T11:26:06.973586"
+    },
+    {
+        "ticket_id": "TKT-1338A838",
+        "customer_name": "Priya",
+        "customer_email": "priya@example.com",
+        "order_id": "ORD-10022",
+        "subject": "I was charged twice",
+        "message": "I was charged twice for the same order. Please check the duplicate payment and refund the extra charge.",
+        "category": "Payment & Invoicing",
+        "category_confidence": 99.8,
+        "priority": "High",
+        "priority_score": 50,
+        "priority_reasons": [
+            "Payment & Invoicing issue",
+            "financial impact"
+        ],
+        "routing": "Auto-Routed",
+        "status": "New",
+        "agent_response": "",
+        "customer_confirmed": false,
+        "reviewed": true,
+        "created_at": "2026-09-09T11:30:56.881521"
+    },
+    {
+        "ticket_id": "TKT-D386413E",
+        "customer_name": "Rahul",
+        "customer_email": "rahul@example.com",
+        "order_id": "ORD-10023",
+        "subject": "I cannot login to my account",
+        "message": "I cannot log in to my account even though I am using the correct password. Please help me regain access.",
+        "category": "Account, Security & Login",
+        "category_confidence": 99.75,
+        "priority": "High",
+        "priority_score": 45,
+        "priority_reasons": [
+            "Account, Security & Login issue",
+            "high customer impact"
+        ],
+        "routing": "Auto-Routed",
+        "status": "New",
+        "agent_response": "",
+        "customer_confirmed": false,
+        "reviewed": true,
+        "created_at": "2026-09-09T11:31:12.066431"
+    }
+]
