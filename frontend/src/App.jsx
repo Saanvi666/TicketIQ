@@ -1,1481 +1,1268 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
-  LayoutDashboard,
-  Ticket,
+  Inbox,
   Mail,
+  BarChart3,
   Settings,
-  RefreshCw,
   Search,
-  ChevronRight,
-  ArrowLeft,
-  User,
-  Clock,
-  Bot,
-  CheckCircle2,
-  AlertCircle,
-  ShieldCheck,
-  Send,
+  Bell,
+  Plus,
+  ChevronDown,
+  Clock3,
   Play,
   Square,
-  Plus,
-  Inbox,
-  BarChart3,
-  CircleDot,
-  X,
+  RefreshCw,
+  CheckCircle2,
 } from "lucide-react";
-
-import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
-} from "recharts";
 
 const API_URL = "http://127.0.0.1:8000";
 
-const CATEGORY_OPTIONS = [
-  "Account, Security & Login",
-  "App, Website & Feedback",
-  "Order Modifications & Cancellations",
-  "Payment & Invoicing",
-  "Product, Warranty & Tech Specs",
-  "Returns, Refunds & Exchanges",
-  "Shipping & Delivery",
-];
-
-const PRIORITY_OPTIONS = ["Low", "Medium", "High", "Urgent"];
-
 const SIMULATED_EMAILS = [
   {
-    customer_name: "Aarav",
+    customer_name: "Aarav Shah",
     customer_email: "aarav@example.com",
-    order_id: "ORD-10021",
-    subject: "My package is delayed",
+    subject: "My order has not arrived",
     message:
-      "My package was supposed to arrive two days ago but the tracking still says it is in transit. Please check the delivery status.",
+      "My package was supposed to arrive two days ago but I still have not received it. Please check the delivery status.",
   },
   {
-    customer_name: "Priya",
-    customer_email: "priya@example.com",
-    order_id: "ORD-10022",
+    customer_name: "Riya Mehta",
+    customer_email: "riya@example.com",
     subject: "I was charged twice",
     message:
-      "I was charged twice for the same order. Please check the duplicate payment and refund the extra charge.",
+      "I placed one order but my card was charged twice. Please help me get the extra charge refunded.",
   },
   {
-    customer_name: "Rahul",
-    customer_email: "rahul@example.com",
-    order_id: "ORD-10023",
-    subject: "I cannot login to my account",
+    customer_name: "Kabir Patel",
+    customer_email: "kabir@example.com",
+    subject: "Cannot log into my account",
     message:
-      "I cannot log in to my account even though I am using the correct password. Please help me regain access.",
+      "I am unable to log into my account even though I am using the correct password.",
   },
   {
-    customer_name: "Ananya",
+    customer_name: "Ananya Rao",
     customer_email: "ananya@example.com",
-    order_id: "ORD-10024",
     subject: "I want to return my product",
     message:
-      "I received the product but I would like to return it. Please tell me how I can start the return process.",
+      "The product I received is not what I expected. I would like to return it and get a refund.",
   },
   {
-    customer_name: "Rohan",
-    customer_email: "rohan@example.com",
-    order_id: "ORD-10025",
-    subject: "Product information",
+    customer_name: "Vivaan Joshi",
+    customer_email: "vivaan@example.com",
+    subject: "Payment failed",
     message:
-      "Can you provide more information about this product and its warranty coverage?",
+      "I tried placing my order several times but the payment keeps failing at checkout.",
   },
 ];
 
 function App() {
-  const [activePage, setActivePage] = useState("dashboard");
-
   const [tickets, setTickets] = useState([]);
-  const [analytics, setAnalytics] = useState(null);
-
   const [selectedTicket, setSelectedTicket] = useState(null);
 
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-
-  const [searchTerm, setSearchTerm] = useState("");
-  const [priorityFilter, setPriorityFilter] = useState("All");
-  const [statusFilter, setStatusFilter] = useState("All");
-
   const [agentResponse, setAgentResponse] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState("");
+  const [generatingResponse, setGeneratingResponse] = useState(false);
 
-  const [reviewCategory, setReviewCategory] = useState("");
-  const [reviewPriority, setReviewPriority] = useState("");
+  const [activePage, setActivePage] = useState("tickets");
 
   const [simulationRunning, setSimulationRunning] = useState(false);
-  const [simulationIndex, setSimulationIndex] = useState(0);
-  const [lastIncomingEmail, setLastIncomingEmail] = useState(null);
+  const [incomingEmails, setIncomingEmails] = useState([]);
+  const [lastSimulatedEmail, setLastSimulatedEmail] = useState(null);
+
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [updatingStatus, setUpdatingStatus] = useState(false);
 
   useEffect(() => {
     fetchTickets();
-    fetchAnalytics();
   }, []);
-
-  useEffect(() => {
-    if (!simulationRunning) return;
-
-    const interval = setInterval(() => {
-      simulateNewEmail();
-    }, 15000);
-
-    return () => clearInterval(interval);
-  }, [simulationRunning, simulationIndex]);
 
   const fetchTickets = async () => {
     try {
-      setLoading(true);
-
       const response = await axios.get(`${API_URL}/tickets`);
-
       setTickets(response.data);
     } catch (error) {
-      console.error(error);
-      setMessage("Unable to load tickets.");
-    } finally {
-      setLoading(false);
+      console.error("Error fetching tickets:", error);
     }
   };
 
-  const fetchAnalytics = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/analytics`);
-      setAnalytics(response.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const showMessage = (text) => {
-    setMessage(text);
-
-    setTimeout(() => {
-      setMessage("");
-    }, 3000);
-  };
-
-  const openTicket = (ticket) => {
-    setSelectedTicket(ticket);
-
-    setAgentResponse(ticket.agent_response || "");
-    setSelectedStatus(ticket.status || "New");
-
-    setReviewCategory(ticket.category || "");
-    setReviewPriority(ticket.priority || "");
-  };
-
-  const closeTicketDetail = () => {
-    setSelectedTicket(null);
-    setAgentResponse("");
-  };
-
-  const saveAgentChanges = async () => {
+  const generateAIResponse = async () => {
     if (!selectedTicket) return;
 
     try {
-      const isReviewRequired =
-        selectedTicket.routing !== "Auto-Routed" &&
-        !selectedTicket.reviewed;
+      setGeneratingResponse(true);
 
-      const payload = {
-        category: reviewCategory,
-        priority: reviewPriority,
-        status: selectedStatus,
-        agent_response: agentResponse,
-        reviewed: isReviewRequired
-          ? true
-          : selectedTicket.reviewed ?? true,
-      };
+      const response = await axios.post(
+        `${API_URL}/tickets/${selectedTicket.ticket_id}/generate-response`
+      );
+
+      setAgentResponse(response.data.response || "");
+
+      setSelectedTicket((previous) => ({
+        ...previous,
+        agent_response: response.data.response || "",
+      }));
+    } catch (error) {
+      console.error("Error generating AI response:", error);
+
+      alert(
+        "Unable to generate AI response. Please make sure the FastAPI backend is running."
+      );
+    } finally {
+      setGeneratingResponse(false);
+    }
+  };
+
+  const simulateIncomingEmail = async () => {
+    const email =
+      SIMULATED_EMAILS[
+        Math.floor(Math.random() * SIMULATED_EMAILS.length)
+      ];
+
+    try {
+      const response = await axios.post(`${API_URL}/tickets`, {
+        customer_name: email.customer_name,
+        customer_email: email.customer_email,
+        subject: email.subject,
+        message: email.message,
+      });
+
+      const newTicket = response.data;
+
+      setTickets((previousTickets) => [
+        newTicket,
+        ...previousTickets,
+      ]);
+
+      setIncomingEmails((previousEmails) => [
+        {
+          ...email,
+          ticket_id: newTicket.ticket_id,
+          received_at: new Date().toLocaleTimeString(),
+        },
+        ...previousEmails,
+      ]);
+
+      setLastSimulatedEmail(email);
+
+      await fetchTickets();
+    } catch (error) {
+      console.error("Error creating simulated ticket:", error);
+
+      alert(
+        "Unable to create ticket. Please make sure the FastAPI backend is running."
+      );
+    }
+  };
+
+  useEffect(() => {
+    let interval;
+
+    if (simulationRunning) {
+      interval = setInterval(() => {
+        simulateIncomingEmail();
+      }, 8000);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [simulationRunning]);
+
+  const openTicket = (ticket) => {
+    if (!ticket) return;
+
+    setSelectedTicket(ticket);
+    setAgentResponse(ticket.agent_response || "");
+    setSelectedStatus(ticket.status || "In Progress");
+    setActivePage("tickets");
+  };
+
+  const updateTicketStatus = async () => {
+    if (!selectedTicket || !selectedStatus) return;
+
+    try {
+      setUpdatingStatus(true);
 
       const response = await axios.patch(
         `${API_URL}/tickets/${selectedTicket.ticket_id}`,
-        payload
-      );
-
-      const updatedTicket = response.data;
-
-      setSelectedTicket(updatedTicket);
-
-      setTickets((prev) =>
-        prev.map((ticket) =>
-          ticket.ticket_id === updatedTicket.ticket_id
-            ? updatedTicket
-            : ticket
-        )
-      );
-
-      await fetchAnalytics();
-
-      showMessage("Ticket updated successfully.");
-    } catch (error) {
-      console.error(error);
-      showMessage("Unable to update ticket.");
-    }
-  };
-
-  const confirmResolution = async () => {
-    if (!selectedTicket) return;
-
-    try {
-      const response = await axios.patch(
-        `${API_URL}/tickets/${selectedTicket.ticket_id}/confirm`,
         {
-          confirmed: true,
+          status: selectedStatus,
         }
       );
 
       const updatedTicket = response.data;
 
       setSelectedTicket(updatedTicket);
+      setSelectedStatus(updatedTicket.status);
 
-      setTickets((prev) =>
-        prev.map((ticket) =>
+      setTickets((previousTickets) =>
+        previousTickets.map((ticket) =>
           ticket.ticket_id === updatedTicket.ticket_id
             ? updatedTicket
             : ticket
         )
       );
 
-      await fetchAnalytics();
+      if (
+        selectedStatus === "Resolved" &&
+        updatedTicket.status === "Pending Customer"
+      ) {
+        alert(
+          "Ticket resolved successfully. Resolution email sent to the customer."
+        );
+      } else {
+        alert("Ticket status updated successfully.");
+      }
 
-      showMessage("Customer confirmation received. Ticket closed.");
+      await fetchTickets();
     } catch (error) {
-      console.error(error);
-      showMessage("Unable to confirm ticket.");
-    }
-  };
+      console.error("Error updating ticket status:", error);
 
-  const simulateNewEmail = async () => {
-    const email = SIMULATED_EMAILS[simulationIndex];
-
-    try {
-      const response = await axios.post(`${API_URL}/tickets`, email);
-
-      const newTicket = response.data;
-
-      setTickets((prev) => [newTicket, ...prev]);
-
-      setLastIncomingEmail(email);
-
-      setSimulationIndex(
-        (prev) => (prev + 1) % SIMULATED_EMAILS.length
+      alert(
+        "Unable to update ticket status. Please make sure the FastAPI backend is running."
       );
-
-      await fetchAnalytics();
-
-      showMessage("New dummy customer email received.");
-    } catch (error) {
-      console.error(error);
-      showMessage("Unable to simulate incoming email.");
+    } finally {
+      setUpdatingStatus(false);
     }
   };
 
-  const toggleSimulation = () => {
-    setSimulationRunning((prev) => !prev);
-  };
-
-  const navigateTo = (page) => {
-    setActivePage(page);
-    setSelectedTicket(null);
-  };
-
-  const filteredTickets = tickets.filter((ticket) => {
-    const search = searchTerm.toLowerCase();
-
-    const matchesSearch =
-      !search ||
-      ticket.ticket_id?.toLowerCase().includes(search) ||
-      ticket.customer_name?.toLowerCase().includes(search) ||
-      ticket.subject?.toLowerCase().includes(search) ||
-      ticket.category?.toLowerCase().includes(search);
-
-    const matchesPriority =
-      priorityFilter === "All" ||
-      ticket.priority === priorityFilter;
-
-    const matchesStatus =
-      statusFilter === "All" ||
-      ticket.status === statusFilter;
-
-    return matchesSearch && matchesPriority && matchesStatus;
-  });
-
-  const getPriorityClass = (priority) => {
+  const priorityStyle = (priority) => {
     switch (priority) {
       case "Urgent":
-        return "bg-red-50 text-red-700 border-red-200";
+        return "bg-red-100 text-red-700";
       case "High":
-        return "bg-orange-50 text-orange-700 border-orange-200";
+        return "bg-orange-100 text-orange-700";
       case "Medium":
-        return "bg-yellow-50 text-yellow-700 border-yellow-200";
+        return "bg-yellow-100 text-yellow-700";
+      case "Low":
+        return "bg-green-100 text-green-700";
       default:
-        return "bg-green-50 text-green-700 border-green-200";
+        return "bg-zinc-100 text-zinc-600";
     }
   };
 
-  const getStatusClass = (status) => {
+  const statusStyle = (status) => {
     switch (status) {
-      case "Closed":
-        return "bg-green-50 text-green-700 border-green-200";
-      case "Resolved":
-        return "bg-blue-50 text-blue-700 border-blue-200";
-      case "Pending Customer":
-      case "Awaiting Customer":
-        return "bg-purple-50 text-purple-700 border-purple-200";
+      case "New":
+        return "bg-blue-100 text-blue-700";
       case "In Progress":
-        return "bg-orange-50 text-orange-700 border-orange-200";
+        return "bg-purple-100 text-purple-700";
+      case "Resolved":
+        return "bg-green-100 text-green-700";
+      case "Pending Customer":
+        return "bg-yellow-100 text-yellow-700";
+      case "Closed":
+        return "bg-zinc-200 text-zinc-700";
       default:
-        return "bg-gray-100 text-gray-700 border-gray-200";
+        return "bg-zinc-100 text-zinc-600";
     }
   };
 
-  const renderSidebar = () => (
-    <aside className="w-64 min-h-screen bg-white border-r border-gray-200 flex flex-col">
-      <div className="px-6 py-6 border-b border-gray-100">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gray-900 text-white flex items-center justify-center">
-            <Bot size={21} />
-          </div>
-
-          <div>
-            <h1 className="font-bold text-xl text-gray-900">
-              TicketIQ
-            </h1>
-            <p className="text-xs text-gray-500">
-              Intelligent Support
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <nav className="flex-1 px-3 py-5 space-y-1">
-        <SidebarItem
-          icon={<LayoutDashboard size={19} />}
-          label="Dashboard"
-          active={activePage === "dashboard"}
-          onClick={() => navigateTo("dashboard")}
-        />
-
-        <SidebarItem
-          icon={<Ticket size={19} />}
-          label="Tickets"
-          active={activePage === "tickets"}
-          onClick={() => navigateTo("tickets")}
-          count={tickets.length}
-        />
-
-        <SidebarItem
-          icon={<Mail size={19} />}
-          label="Incoming Email"
-          active={activePage === "incoming"}
-          onClick={() => navigateTo("incoming")}
-        />
-
-        <SidebarItem
-          icon={<Settings size={19} />}
-          label="Settings"
-          active={activePage === "settings"}
-          onClick={() => navigateTo("settings")}
-        />
-      </nav>
-
-      <div className="p-4 border-t border-gray-100">
-        <div className="flex items-center gap-3 px-3 py-3 rounded-xl bg-green-50">
-          <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
-
-          <div>
-            <p className="text-sm font-medium text-gray-800">
-              System Online
-            </p>
-            <p className="text-xs text-gray-500">
-              AI services active
-            </p>
-          </div>
-        </div>
-      </div>
-    </aside>
-  );
-
-  const renderHeader = (title, subtitle) => (
-    <header className="h-20 bg-white border-b border-gray-200 flex items-center justify-between px-8">
-      <div>
-        <h2 className="text-2xl font-semibold text-gray-900">
-          {title}
-        </h2>
-
-        {subtitle && (
-          <p className="text-sm text-gray-500 mt-1">
-            {subtitle}
-          </p>
-        )}
-      </div>
-
-      {message && (
-        <div className="flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">
-          <CheckCircle2 size={16} />
-          {message}
-        </div>
-      )}
-    </header>
-  );
-
-  const renderDashboard = () => {
-    if (!analytics) {
-      return (
-        <div className="p-8">
-          <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
-            Loading dashboard...
-          </div>
-        </div>
-      );
+  const getRouteStyle = (routing) => {
+    if (routing === "Auto-Routed") {
+      return "bg-green-100 text-green-700";
     }
 
-    const priorityData = Object.entries(
-      analytics.by_priority || {}
-    ).map(([name, value]) => ({
-      name,
-      value,
-    }));
+    if (routing === "Review Recommended") {
+      return "bg-yellow-100 text-yellow-700";
+    }
 
-    const categoryData = Object.entries(
-      analytics.by_category || {}
-    ).map(([name, value]) => ({
-      name,
-      value,
-    }));
-
-    const statusData = Object.entries(
-      analytics.by_status || {}
-    ).map(([name, value]) => ({
-      name,
-      value,
-    }));
-
-    return (
-      <div className="p-8 space-y-6">
-        <div className="grid grid-cols-4 gap-5">
-          <StatCard
-            title="Total Tickets"
-            value={analytics.total_tickets || 0}
-            icon={<Ticket size={20} />}
-          />
-
-          <StatCard
-            title="Urgent"
-            value={analytics.by_priority?.Urgent || 0}
-            icon={<AlertCircle size={20} />}
-          />
-
-          <StatCard
-            title="In Progress"
-            value={analytics.by_status?.["In Progress"] || 0}
-            icon={<Clock size={20} />}
-          />
-
-          <StatCard
-            title="Closed"
-            value={analytics.by_status?.Closed || 0}
-            icon={<CheckCircle2 size={20} />}
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-6">
-          <ChartCard title="Tickets by Priority">
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={priorityData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis allowDecimals={false} />
-                <Tooltip />
-                <Bar dataKey="value" />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartCard>
-
-          <ChartCard title="Tickets by Category">
-            <ResponsiveContainer width="100%" height={280}>
-              <PieChart>
-                <Pie
-                  data={categoryData}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={90}
-                  label
-                >
-                  {categoryData.map((_, index) => (
-                    <Cell key={index} />
-                  ))}
-                </Pie>
-
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </ChartCard>
-        </div>
-
-        <ChartCard title="Tickets by Status">
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={statusData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis allowDecimals={false} />
-              <Tooltip />
-              <Bar dataKey="value" />
-            </BarChart>
-          </ResponsiveContainer>
-        </ChartCard>
-      </div>
-    );
+    return "bg-red-100 text-red-700";
   };
 
-  const renderTickets = () => (
-    <div className="p-8 space-y-5">
-      <div className="bg-white border border-gray-200 rounded-xl p-4">
-        <div className="flex items-center gap-3">
-          <div className="flex-1 relative">
-            <Search
-              size={18}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            />
+  return (
+    <div className="min-h-screen bg-[#f7f7f8] text-zinc-900">
 
-            <input
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search tickets..."
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-gray-200"
-            />
+      {/* SIDEBAR */}
+      <aside className="fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-zinc-200 px-5 py-6">
+
+        <div className="flex items-center gap-3 mb-10">
+          <div className="w-9 h-9 bg-zinc-900 rounded-xl flex items-center justify-center">
+            <Inbox size={19} className="text-white" />
           </div>
 
-          <select
-            value={priorityFilter}
-            onChange={(e) => setPriorityFilter(e.target.value)}
-            className="px-4 py-2.5 border border-gray-200 rounded-lg bg-white"
-          >
-            <option value="All">All Priorities</option>
-            {PRIORITY_OPTIONS.map((priority) => (
-              <option key={priority}>{priority}</option>
-            ))}
-          </select>
+          <div>
+            <h1 className="font-semibold text-lg">TicketIQ</h1>
+            <p className="text-xs text-zinc-400">
+              AI Support Router
+            </p>
+          </div>
+        </div>
 
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2.5 border border-gray-200 rounded-lg bg-white"
-          >
-            <option value="All">All Statuses</option>
-            <option>New</option>
-            <option>In Progress</option>
-            <option>Resolved</option>
-            <option>Pending Customer</option>
-            <option>Closed</option>
-          </select>
+        <nav className="space-y-2">
 
           <button
-            onClick={() => {
-              fetchTickets();
-              fetchAnalytics();
-            }}
-            className="p-2.5 border border-gray-200 rounded-lg hover:bg-gray-50"
-          >
-            <RefreshCw size={18} />
-          </button>
-        </div>
-      </div>
-
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-semibold text-gray-900">
-                Support Tickets
-              </h3>
-
-              <p className="text-sm text-gray-500 mt-1">
-                {filteredTickets.length} tickets
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {loading ? (
-          <div className="p-10 text-center text-gray-500">
-            Loading tickets...
-          </div>
-        ) : filteredTickets.length === 0 ? (
-          <div className="p-10 text-center text-gray-500">
-            No tickets found.
-          </div>
-        ) : (
-          <div className="divide-y divide-gray-100">
-            {filteredTickets.map((ticket) => (
-              <button
-                key={ticket.ticket_id}
-                onClick={() => openTicket(ticket)}
-                className="w-full text-left px-6 py-5 hover:bg-gray-50 transition"
-              >
-                <div className="flex items-center gap-5">
-                  <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
-                    <Ticket size={18} className="text-gray-600" />
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3">
-                      <p className="font-medium text-gray-900 truncate">
-                        {ticket.subject}
-                      </p>
-
-                      <span
-                        className={`px-2.5 py-1 rounded-full text-xs border ${getPriorityClass(
-                          ticket.priority
-                        )}`}
-                      >
-                        {ticket.priority}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-3 mt-2 text-sm text-gray-500">
-                      <span>{ticket.ticket_id}</span>
-                      <span>•</span>
-                      <span>{ticket.customer_name}</span>
-                      <span>•</span>
-                      <span>{ticket.category}</span>
-                    </div>
-                  </div>
-
-                  <span
-                    className={`px-3 py-1.5 rounded-full text-xs border ${getStatusClass(
-                      ticket.status
-                    )}`}
-                  >
-                    {ticket.status}
-                  </span>
-
-                  <ChevronRight
-                    size={18}
-                    className="text-gray-400"
-                  />
-                </div>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
-  const renderIncomingEmail = () => (
-    <div className="p-8 space-y-6">
-      <div className="bg-white border border-gray-200 rounded-xl p-6">
-        <div className="flex items-start justify-between">
-          <div className="flex gap-4">
-            <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center">
-              <Mail size={23} className="text-gray-700" />
-            </div>
-
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">
-                Dummy Email Simulator
-              </h3>
-
-              <p className="text-sm text-gray-500 mt-1 max-w-xl">
-                Simulate incoming customer emails for demonstration
-                and testing of the TicketIQ support workflow.
-              </p>
-            </div>
-          </div>
-
-          <div
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${
-              simulationRunning
-                ? "bg-green-50 border-green-200 text-green-700"
-                : "bg-gray-50 border-gray-200 text-gray-600"
+            onClick={() => setActivePage("tickets")}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm ${
+              activePage === "tickets"
+                ? "bg-zinc-100 font-medium"
+                : "text-zinc-500 hover:bg-zinc-50"
             }`}
           >
-            <CircleDot size={16} />
-
-            <span className="text-sm font-medium">
-              {simulationRunning
-                ? "Simulation ON"
-                : "Simulation OFF"}
-            </span>
-          </div>
-        </div>
-
-        <div className="mt-7 pt-6 border-t border-gray-100 flex items-center justify-between">
-          <div>
-            <p className="font-medium text-gray-900">
-              Automatic Simulation
-            </p>
-
-            <p className="text-sm text-gray-500 mt-1">
-              Generates one dummy email every 15 seconds.
-            </p>
-          </div>
-
-          {simulationRunning ? (
-            <button
-              onClick={toggleSimulation}
-              className="flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white rounded-lg hover:bg-gray-800"
-            >
-              <Square size={16} />
-              Stop Simulation
-            </button>
-          ) : (
-            <button
-              onClick={toggleSimulation}
-              className="flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white rounded-lg hover:bg-gray-800"
-            >
-              <Play size={16} />
-              Start Simulation
-            </button>
-          )}
-        </div>
-      </div>
-
-      <div className="bg-white border border-gray-200 rounded-xl p-6">
-        <div className="flex items-start justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">
-              Manual Test
-            </h3>
-
-            <p className="text-sm text-gray-500 mt-1">
-              Generate exactly one dummy customer email whenever
-              you want.
-            </p>
-          </div>
+            <Inbox size={17} />
+            Tickets
+          </button>
 
           <button
-            onClick={simulateNewEmail}
-            className="flex items-center gap-2 px-5 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium"
+            onClick={() => setActivePage("inbox")}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm ${
+              activePage === "inbox"
+                ? "bg-zinc-100 font-medium"
+                : "text-zinc-500 hover:bg-zinc-50"
+            }`}
           >
-            <Plus size={17} />
-            Simulate New Email
+            <Mail size={17} />
+            Incoming Emails
           </button>
-        </div>
 
-        {lastIncomingEmail && (
-          <div className="mt-6 p-5 bg-gray-50 border border-gray-200 rounded-xl">
-            <div className="flex items-center gap-2 mb-4">
-              <CheckCircle2
-                size={17}
-                className="text-green-600"
-              />
+          <button
+            onClick={() => setActivePage("dashboard")}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm ${
+              activePage === "dashboard"
+                ? "bg-zinc-100 font-medium"
+                : "text-zinc-500 hover:bg-zinc-50"
+            }`}
+          >
+            <BarChart3 size={17} />
+            Dashboard
+          </button>
 
-              <span className="text-sm font-medium text-green-700">
-                Last simulated email
+          <button
+            onClick={() => setActivePage("settings")}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm ${
+              activePage === "settings"
+                ? "bg-zinc-100 font-medium"
+                : "text-zinc-500 hover:bg-zinc-50"
+            }`}
+          >
+            <Settings size={17} />
+            Settings
+          </button>
+
+        </nav>
+
+        <div className="absolute bottom-6 left-5 right-5">
+          <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-3">
+
+            <p className="text-xs text-zinc-400 mb-1">
+              SYSTEM STATUS
+            </p>
+
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-green-500" />
+              <span className="text-sm">
+                AI System Online
               </span>
             </div>
 
-            <div className="space-y-2 text-sm">
-              <p>
-                <span className="font-medium">From:</span>{" "}
-                {lastIncomingEmail.customer_name} (
-                {lastIncomingEmail.customer_email})
-              </p>
-
-              <p>
-                <span className="font-medium">Subject:</span>{" "}
-                {lastIncomingEmail.subject}
-              </p>
-
-              <p className="text-gray-600">
-                {lastIncomingEmail.message}
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        <div className="px-6 py-5 border-b border-gray-200">
-          <div className="flex items-center gap-3">
-            <Inbox size={19} />
-
-            <div>
-              <h3 className="font-semibold text-gray-900">
-                Recent Incoming Emails
-              </h3>
-
-              <p className="text-sm text-gray-500">
-                Latest simulated customer messages
-              </p>
-            </div>
           </div>
         </div>
 
-        {tickets.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
-            No incoming emails yet.
-          </div>
-        ) : (
-          <div className="divide-y divide-gray-100">
-            {tickets.slice(0, 5).map((ticket) => (
-              <div
-                key={ticket.ticket_id}
-                className="px-6 py-4 flex items-center gap-4"
-              >
-                <div className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center">
-                  <Mail size={16} className="text-gray-600" />
-                </div>
+      </aside>
 
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-900 truncate">
-                    {ticket.subject}
-                  </p>
+      {/* MAIN */}
+      <main className="ml-64 min-h-screen">
 
-                  <p className="text-sm text-gray-500 mt-1">
-                    {ticket.customer_name} • {ticket.customer_email}
-                  </p>
-                </div>
+        {/* TOP BAR */}
+        <header className="h-16 bg-white border-b border-zinc-200 flex items-center justify-between px-8">
 
-                <span
-                  className={`px-3 py-1 rounded-full text-xs border ${getStatusClass(
-                    ticket.status
-                  )}`}
-                >
-                  Ticket Created
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
+          <h2 className="font-semibold">
+            {activePage === "tickets"
+              ? "Tickets"
+              : activePage === "inbox"
+              ? "Incoming Emails"
+              : activePage === "dashboard"
+              ? "Dashboard"
+              : "Settings"}
+          </h2>
 
-  const renderTicketDetail = () => {
-    if (!selectedTicket) return null;
+          <div className="flex items-center gap-5">
 
-    const confidence = Number(
-      selectedTicket.category_confidence || 0
-    );
-
-    const isReviewRequired =
-      selectedTicket.routing !== "Auto-Routed" &&
-      !selectedTicket.reviewed;
-
-    return (
-      <div className="p-8">
-        <button
-          onClick={closeTicketDetail}
-          className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-6"
-        >
-          <ArrowLeft size={17} />
-          Back to Tickets
-        </button>
-
-        <div className="grid grid-cols-3 gap-6">
-          <div className="col-span-2 space-y-6">
-            <div className="bg-white border border-gray-200 rounded-xl p-6">
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="flex items-center gap-3">
-                    <h2 className="text-xl font-semibold text-gray-900">
-                      {selectedTicket.subject}
-                    </h2>
-
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs border ${getPriorityClass(
-                        selectedTicket.priority
-                      )}`}
-                    >
-                      {selectedTicket.priority}
-                    </span>
-                  </div>
-
-                  <p className="text-sm text-gray-500 mt-2">
-                    {selectedTicket.ticket_id}
-                  </p>
-                </div>
-
-                <span
-                  className={`px-3 py-1.5 rounded-full text-xs border ${getStatusClass(
-                    selectedTicket.status
-                  )}`}
-                >
-                  {selectedTicket.status}
-                </span>
-              </div>
-
-              <div className="mt-7 pt-6 border-t border-gray-100">
-                <div className="flex items-center gap-2 mb-3">
-                  <Mail size={17} />
-                  <h3 className="font-medium text-gray-900">
-                    Customer Message
-                  </h3>
-                </div>
-
-                <div className="bg-gray-50 rounded-xl p-5">
-                  <p className="text-gray-700 leading-7 whitespace-pre-wrap">
-                    {selectedTicket.message}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white border border-gray-200 rounded-xl p-6">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
-                  <Bot size={19} />
-                </div>
-
-                <div>
-                  <h3 className="font-semibold text-gray-900">
-                    AI Analysis
-                  </h3>
-
-                  <p className="text-sm text-gray-500">
-                    Classification and routing decision
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-5">
-                <div className="border border-gray-200 rounded-xl p-5">
-                  <p className="text-sm text-gray-500">
-                    Predicted Category
-                  </p>
-
-                  <p className="font-semibold text-gray-900 mt-2">
-                    {selectedTicket.category}
-                  </p>
-
-                  <div className="mt-4">
-                    <div className="flex justify-between text-xs text-gray-500 mb-2">
-                      <span>Confidence</span>
-                      <span>{confidence.toFixed(2)}%</span>
-                    </div>
-
-                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gray-900 rounded-full"
-                        style={{
-                          width: `${Math.min(confidence, 100)}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="border border-gray-200 rounded-xl p-5">
-                  <p className="text-sm text-gray-500">
-                    Routing Decision
-                  </p>
-
-                  <div className="flex items-center gap-2 mt-3">
-                    {selectedTicket.routing === "Auto-Routed" ? (
-                      <ShieldCheck
-                        size={20}
-                        className="text-green-600"
-                      />
-                    ) : (
-                      <AlertCircle
-                        size={20}
-                        className="text-orange-500"
-                      />
-                    )}
-
-                    <span className="font-semibold text-gray-900">
-                      {selectedTicket.routing}
-                    </span>
-                  </div>
-
-                  <p className="text-sm text-gray-500 mt-3">
-                    {selectedTicket.routing === "Auto-Routed"
-                      ? "High-confidence ticket automatically routed."
-                      : "Agent review is required before final routing."}
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-5 border border-gray-200 rounded-xl p-5">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">
-                      Priority
-                    </p>
-
-                    <p className="font-semibold text-gray-900 mt-1">
-                      {selectedTicket.priority}
-                    </p>
-                  </div>
-
-                  <div className="text-right">
-                    <p className="text-sm text-gray-500">
-                      Priority Score
-                    </p>
-
-                    <p className="font-semibold text-gray-900 mt-1">
-                      {selectedTicket.priority_score ?? 0}
-                    </p>
-                  </div>
-                </div>
-
-                {selectedTicket.priority_reasons?.length > 0 && (
-                  <div className="mt-4">
-                    <p className="text-sm font-medium text-gray-700 mb-2">
-                      Reasons
-                    </p>
-
-                    <div className="flex flex-wrap gap-2">
-                      {selectedTicket.priority_reasons.map(
-                        (reason, index) => (
-                          <span
-                            key={index}
-                            className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs text-gray-600"
-                          >
-                            {reason}
-                          </span>
-                        )
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {isReviewRequired && (
-              <div className="bg-orange-50 border border-orange-200 rounded-xl p-6">
-                <div className="flex items-start gap-3 mb-6">
-                  <AlertCircle
-                    size={20}
-                    className="text-orange-600 mt-0.5"
-                  />
-
-                  <div>
-                    <h3 className="font-semibold text-orange-900">
-                      Agent Review Required
-                    </h3>
-
-                    <p className="text-sm text-orange-800 mt-1">
-                      AI confidence is below the automatic routing
-                      threshold. Review and confirm the ticket
-                      classification.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-5">
-                  <div className="bg-white border border-orange-200 rounded-xl p-5">
-                    <p className="text-xs text-gray-500 uppercase tracking-wide">
-                      AI Suggested Category
-                    </p>
-
-                    <p className="font-medium text-gray-900 mt-2">
-                      {selectedTicket.category}
-                    </p>
-
-                    <p className="text-xs text-gray-500 mt-2">
-                      Confidence: {confidence.toFixed(2)}%
-                    </p>
-
-                    <label className="block text-sm font-medium text-gray-700 mt-5 mb-2">
-                      Agent Decision
-                    </label>
-
-                    <select
-                      value={reviewCategory}
-                      onChange={(e) =>
-                        setReviewCategory(e.target.value)
-                      }
-                      className="w-full px-3 py-2.5 border border-gray-200 rounded-lg bg-white"
-                    >
-                      {CATEGORY_OPTIONS.map((category) => (
-                        <option key={category}>{category}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="bg-white border border-orange-200 rounded-xl p-5">
-                    <p className="text-xs text-gray-500 uppercase tracking-wide">
-                      AI Suggested Priority
-                    </p>
-
-                    <p className="font-medium text-gray-900 mt-2">
-                      {selectedTicket.priority}
-                    </p>
-
-                    <p className="text-xs text-gray-500 mt-2">
-                      Score: {selectedTicket.priority_score ?? 0}
-                    </p>
-
-                    <label className="block text-sm font-medium text-gray-700 mt-5 mb-2">
-                      Agent Decision
-                    </label>
-
-                    <select
-                      value={reviewPriority}
-                      onChange={(e) =>
-                        setReviewPriority(e.target.value)
-                      }
-                      className="w-full px-3 py-2.5 border border-gray-200 rounded-lg bg-white"
-                    >
-                      {PRIORITY_OPTIONS.map((priority) => (
-                        <option key={priority}>{priority}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="mt-5 flex items-center justify-between">
-                  <p className="text-xs text-orange-800">
-                    Saving this decision marks the ticket as reviewed.
-                  </p>
-
-                  <button
-                    onClick={saveAgentChanges}
-                    className="px-5 py-2.5 bg-gray-900 text-white rounded-lg hover:bg-gray-800"
-                  >
-                    Save Agent Decision
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <div className="bg-white border border-gray-200 rounded-xl p-6">
-              <div className="flex items-center gap-3 mb-5">
-                <Send size={19} />
-
-                <div>
-                  <h3 className="font-semibold text-gray-900">
-                    Agent Response
-                  </h3>
-
-                  <p className="text-sm text-gray-500">
-                    Respond to the customer and update the ticket
-                  </p>
-                </div>
-              </div>
-
-              <textarea
-                value={agentResponse}
-                onChange={(e) =>
-                  setAgentResponse(e.target.value)
-                }
-                placeholder="Write your response to the customer..."
-                rows={5}
-                className="w-full border border-gray-200 rounded-xl p-4 resize-none outline-none focus:ring-2 focus:ring-gray-200"
+            <div className="relative">
+              <Search
+                size={17}
+                className="absolute left-3 top-2.5 text-zinc-400"
               />
 
-              <div className="flex items-center justify-between mt-4">
+              <input
+                placeholder="Search"
+                className="w-56 bg-zinc-50 border border-zinc-200 rounded-xl pl-9 pr-3 py-2 text-sm outline-none focus:border-zinc-400"
+              />
+            </div>
+
+            <Bell size={19} className="text-zinc-500" />
+
+            <div className="flex items-center gap-2">
+
+              <div className="w-8 h-8 bg-zinc-200 rounded-full flex items-center justify-center text-sm font-medium">
+                A
+              </div>
+
+              <ChevronDown
+                size={15}
+                className="text-zinc-400"
+              />
+
+            </div>
+
+          </div>
+
+        </header>
+
+        {/* CONTENT */}
+        <div className="p-8">
+
+          {/* TICKETS */}
+          {activePage === "tickets" && (
+            <div>
+
+              {!selectedTicket ? (
+                <>
+                  <div className="flex items-center justify-between mb-7">
+
+                    <div>
+                      <h2 className="text-2xl font-semibold">
+                        Support Tickets
+                      </h2>
+
+                      <p className="text-sm text-zinc-500 mt-1">
+                        AI-powered customer support management
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={simulateIncomingEmail}
+                      className="flex items-center gap-2 bg-zinc-900 text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-zinc-800"
+                    >
+                      <Plus size={16} />
+                      Simulate Email
+                    </button>
+
+                  </div>
+
+                  {/* SIMULATION */}
+                  <div className="bg-white border border-zinc-200 rounded-2xl p-4 mb-6 flex items-center justify-between">
+
+                    <div className="flex items-center gap-3">
+
+                      <div className="w-9 h-9 bg-zinc-100 rounded-xl flex items-center justify-center">
+                        <Clock3 size={17} />
+                      </div>
+
+                      <div>
+                        <p className="text-sm font-medium">
+                          Email Simulation
+                        </p>
+
+                        <p className="text-xs text-zinc-400">
+                          Automatically create test tickets every 8 seconds
+                        </p>
+                      </div>
+
+                    </div>
+
+                    <button
+                      onClick={() =>
+                        setSimulationRunning(
+                          (previous) => !previous
+                        )
+                      }
+                      className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium ${
+                        simulationRunning
+                          ? "bg-red-50 text-red-600"
+                          : "bg-zinc-900 text-white"
+                      }`}
+                    >
+                      {simulationRunning ? (
+                        <>
+                          <Square size={14} />
+                          Stop
+                        </>
+                      ) : (
+                        <>
+                          <Play size={14} />
+                          Start
+                        </>
+                      )}
+                    </button>
+
+                  </div>
+
+                  {/* LAST EMAIL */}
+                  {lastSimulatedEmail && (
+                    <div className="bg-white border border-zinc-200 rounded-2xl p-4 mb-6">
+
+                      <div className="flex items-center justify-between">
+
+                        <div>
+                          <p className="text-xs text-zinc-400">
+                            LAST RECEIVED EMAIL
+                          </p>
+
+                          <p className="font-medium mt-1">
+                            {lastSimulatedEmail.subject}
+                          </p>
+
+                          <p className="text-sm text-zinc-500 mt-1">
+                            From{" "}
+                            {lastSimulatedEmail.customer_email}
+                          </p>
+                        </div>
+
+                        <Mail
+                          size={20}
+                          className="text-zinc-400"
+                        />
+
+                      </div>
+
+                    </div>
+                  )}
+
+                  {/* TICKET TABLE */}
+                  <div className="bg-white border border-zinc-200 rounded-2xl overflow-hidden">
+
+                    <div className="px-6 py-4 border-b border-zinc-200 flex items-center justify-between">
+
+                      <div>
+                        <h3 className="font-medium">
+                          All Tickets
+                        </h3>
+
+                        <p className="text-xs text-zinc-400 mt-1">
+                          {tickets.length} total tickets
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={fetchTickets}
+                        className="p-2 rounded-lg hover:bg-zinc-100"
+                      >
+                        <RefreshCw size={16} />
+                      </button>
+
+                    </div>
+
+                    {tickets.length === 0 ? (
+                      <div className="p-12 text-center">
+
+                        <Inbox
+                          size={30}
+                          className="mx-auto text-zinc-300 mb-3"
+                        />
+
+                        <p className="text-sm text-zinc-500">
+                          No tickets yet
+                        </p>
+
+                        <p className="text-xs text-zinc-400 mt-1">
+                          Simulate an email to create your first ticket.
+                        </p>
+
+                      </div>
+                    ) : (
+                      <div className="divide-y divide-zinc-100">
+
+                        {tickets.map((ticket) => (
+                          <button
+                            key={ticket.ticket_id}
+                            onClick={() => openTicket(ticket)}
+                            className="w-full text-left px-6 py-5 hover:bg-zinc-50 transition"
+                          >
+
+                            <div className="flex items-center justify-between gap-5">
+
+                              <div className="min-w-0 flex-1">
+
+                                <div className="flex items-center gap-2 mb-1">
+
+                                  <span className="text-xs text-zinc-400">
+                                    {ticket.ticket_id}
+                                  </span>
+
+                                  <span
+                                    className={`text-xs px-2 py-1 rounded-full ${statusStyle(
+                                      ticket.status
+                                    )}`}
+                                  >
+                                    {ticket.status}
+                                  </span>
+
+                                </div>
+
+                                <h4 className="font-medium truncate">
+                                  {ticket.subject}
+                                </h4>
+
+                                <p className="text-sm text-zinc-500 mt-1 truncate">
+                                  {ticket.message}
+                                </p>
+
+                              </div>
+
+                              <span
+                                className={`text-xs px-2.5 py-1.5 rounded-full ${priorityStyle(
+                                  ticket.priority
+                                )}`}
+                              >
+                                {ticket.priority}
+                              </span>
+
+                            </div>
+
+                          </button>
+                        ))}
+
+                      </div>
+                    )}
+
+                  </div>
+                </>
+              ) : (
+
+                /* TICKET DETAIL */
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Ticket Status
-                  </label>
 
-                  <select
-                    value={selectedStatus}
-                    onChange={(e) =>
-                      setSelectedStatus(e.target.value)
-                    }
-                    className="px-4 py-2.5 border border-gray-200 rounded-lg bg-white"
+                  <button
+                    onClick={() => setSelectedTicket(null)}
+                    className="text-sm text-zinc-500 hover:text-zinc-900 mb-5"
                   >
-                    <option>New</option>
-                    <option>In Progress</option>
-                    <option>Resolved</option>
-                    <option>Pending Customer</option>
-                    <option>Closed</option>
-                  </select>
+                    ← Back to tickets
+                  </button>
+
+                  <div className="grid grid-cols-3 gap-6">
+
+                    {/* LEFT */}
+                    <div className="col-span-2 space-y-6">
+
+                      {/* HEADER */}
+                      <div className="bg-white border border-zinc-200 rounded-2xl p-6">
+
+                        <div className="flex items-start justify-between">
+
+                          <div>
+
+                            <p className="text-xs text-zinc-400 mb-2">
+                              {selectedTicket.ticket_id}
+                            </p>
+
+                            <h2 className="text-xl font-semibold">
+                              {selectedTicket.subject}
+                            </h2>
+
+                            <p className="text-sm text-zinc-500 mt-2">
+                              From{" "}
+                              {selectedTicket.customer_name}{" "}
+                              &lt;
+                              {selectedTicket.customer_email}
+                              &gt;
+                            </p>
+
+                          </div>
+
+                          <div className="flex gap-2">
+
+                            <span
+                              className={`text-xs px-3 py-1.5 rounded-full ${priorityStyle(
+                                selectedTicket.priority
+                              )}`}
+                            >
+                              {selectedTicket.priority}
+                            </span>
+
+                            <span
+                              className={`text-xs px-3 py-1.5 rounded-full ${statusStyle(
+                                selectedTicket.status
+                              )}`}
+                            >
+                              {selectedTicket.status}
+                            </span>
+
+                          </div>
+
+                        </div>
+
+                      </div>
+
+                      {/* CUSTOMER MESSAGE */}
+                      <div className="bg-white border border-zinc-200 rounded-2xl p-6">
+
+                        <p className="text-xs text-zinc-400 mb-3">
+                          CUSTOMER MESSAGE
+                        </p>
+
+                        <p className="text-sm leading-6 text-zinc-700">
+                          {selectedTicket.message}
+                        </p>
+
+                      </div>
+
+                      {/* AI ANALYSIS */}
+                      <div className="bg-white border border-zinc-200 rounded-2xl p-6">
+
+                        <p className="text-xs text-zinc-400 mb-4">
+                          AI ANALYSIS
+                        </p>
+
+                        <div className="grid grid-cols-3 gap-4">
+
+                          <div className="bg-zinc-50 rounded-xl p-4">
+
+                            <p className="text-xs text-zinc-400">
+                              CATEGORY
+                            </p>
+
+                            <p className="font-medium text-sm mt-2">
+                              {selectedTicket.category}
+                            </p>
+
+                          </div>
+
+                          <div className="bg-zinc-50 rounded-xl p-4">
+
+                            <p className="text-xs text-zinc-400">
+                              CONFIDENCE
+                            </p>
+
+                            <p className="font-medium text-sm mt-2">
+                              {selectedTicket.category_confidence}%
+                            </p>
+
+                          </div>
+
+                          <div className="bg-zinc-50 rounded-xl p-4">
+
+                            <p className="text-xs text-zinc-400">
+                              ROUTING
+                            </p>
+
+                            <span
+                              className={`inline-block text-xs px-2.5 py-1 rounded-full mt-2 ${getRouteStyle(
+                                selectedTicket.routing
+                              )}`}
+                            >
+                              {selectedTicket.routing}
+                            </span>
+
+                          </div>
+
+                        </div>
+
+                        {selectedTicket.priority_reasons &&
+                          selectedTicket.priority_reasons.length > 0 && (
+                            <div className="mt-5">
+
+                              <p className="text-xs text-zinc-400 mb-2">
+                                PRIORITY REASONS
+                              </p>
+
+                              <div className="flex flex-wrap gap-2">
+
+                                {selectedTicket.priority_reasons.map(
+                                  (reason, index) => (
+                                    <span
+                                      key={index}
+                                      className="text-xs bg-zinc-100 text-zinc-600 px-2.5 py-1 rounded-full"
+                                    >
+                                      {reason}
+                                    </span>
+                                  )
+                                )}
+
+                              </div>
+
+                            </div>
+                          )}
+
+                      </div>
+
+                      {/* STATUS */}
+                      <div className="bg-white border border-zinc-200 rounded-2xl p-6">
+
+                        <p className="text-xs text-zinc-400 mb-2">
+                          UPDATE TICKET STATUS
+                        </p>
+
+                        <div className="flex items-center gap-3">
+
+                          <select
+                            value={selectedStatus}
+                            onChange={(e) =>
+                              setSelectedStatus(e.target.value)
+                            }
+                            className="border border-zinc-200 rounded-xl px-4 py-2.5 text-sm bg-white outline-none focus:border-zinc-400"
+                          >
+                            <option value="New">
+                              New
+                            </option>
+
+                            <option value="In Progress">
+                              In Progress
+                            </option>
+
+                            <option value="Resolved">
+                              Resolved
+                            </option>
+
+                            <option value="Pending Customer">
+                              Pending Customer
+                            </option>
+
+                            <option value="Closed">
+                              Closed
+                            </option>
+                          </select>
+
+                          <button
+                            onClick={updateTicketStatus}
+                            disabled={
+                              updatingStatus ||
+                              selectedStatus ===
+                                selectedTicket.status
+                            }
+                            className="bg-zinc-900 text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {updatingStatus
+                              ? "Updating..."
+                              : "Update Status"}
+                          </button>
+
+                        </div>
+
+                        <p className="text-xs text-zinc-400 mt-2">
+                          Selecting <strong>Resolved</strong> will
+                          automatically send the resolution email to
+                          the customer and move the ticket to
+                          Pending Customer.
+                        </p>
+
+                      </div>
+
+                      {/* PENDING CUSTOMER */}
+                      {selectedTicket.status ===
+                        "Pending Customer" && (
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-6">
+
+                          <div className="flex items-start gap-4">
+
+                            <div className="w-10 h-10 rounded-xl bg-yellow-100 flex items-center justify-center shrink-0">
+                              <Mail
+                                size={20}
+                                className="text-yellow-700"
+                              />
+                            </div>
+
+                            <div>
+
+                              <p className="font-semibold text-yellow-900">
+                                Awaiting Customer Confirmation
+                              </p>
+
+                              <p className="text-sm text-yellow-800 mt-1">
+                                The resolution email has been sent to
+                                the customer. TicketIQ is waiting for
+                                the customer's reply.
+                              </p>
+
+                              <p className="text-xs text-yellow-700 mt-3">
+                                The ticket will remain open until the
+                                customer confirms that the issue has
+                                been resolved.
+                              </p>
+
+                            </div>
+
+                          </div>
+
+                        </div>
+                      )}
+
+                      {/* CLOSED */}
+                      {selectedTicket.status === "Closed" && (
+                        <div className="bg-green-50 border border-green-200 rounded-2xl p-6">
+
+                          <div className="flex items-center gap-4">
+
+                            <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center">
+                              <CheckCircle2
+                                size={20}
+                                className="text-green-700"
+                              />
+                            </div>
+
+                            <div>
+
+                              <p className="font-semibold text-green-900">
+                                Ticket Closed
+                              </p>
+
+                              <p className="text-sm text-green-800 mt-1">
+                                Customer confirmed that the issue has
+                                been resolved.
+                              </p>
+
+                            </div>
+
+                          </div>
+
+                        </div>
+                      )}
+
+                    </div>
+
+                    {/* RIGHT */}
+                    <div className="space-y-6">
+
+                      {/* AI RESPONSE */}
+                      <div className="bg-white border border-zinc-200 rounded-2xl p-5">
+
+                        <div className="flex items-center justify-between mb-4">
+
+                          <p className="text-xs text-zinc-400">
+                            AI RESPONSE
+                          </p>
+
+                          <button
+                            onClick={generateAIResponse}
+                            disabled={generatingResponse}
+                            className="text-xs bg-zinc-900 text-white px-3 py-2 rounded-lg disabled:opacity-50"
+                          >
+                            {generatingResponse
+                              ? "Generating..."
+                              : "Generate"}
+                          </button>
+
+                        </div>
+
+                        <textarea
+                          value={agentResponse}
+                          onChange={(e) =>
+                            setAgentResponse(e.target.value)
+                          }
+                          placeholder="Generate or write a response..."
+                          rows={12}
+                          className="w-full border border-zinc-200 rounded-xl p-3 text-sm resize-none outline-none focus:border-zinc-400"
+                        />
+
+                        <button
+                          className="w-full mt-3 border border-zinc-200 py-2.5 rounded-xl text-sm font-medium hover:bg-zinc-50"
+                        >
+                          Save Response
+                        </button>
+
+                      </div>
+
+                      {/* INFO */}
+                      <div className="bg-white border border-zinc-200 rounded-2xl p-5">
+
+                        <p className="text-xs text-zinc-400 mb-4">
+                          TICKET INFORMATION
+                        </p>
+
+                        <div className="space-y-4 text-sm">
+
+                          <div className="flex justify-between">
+                            <span className="text-zinc-400">
+                              Ticket ID
+                            </span>
+
+                            <span className="font-medium">
+                              {selectedTicket.ticket_id}
+                            </span>
+                          </div>
+
+                          <div className="flex justify-between gap-4">
+                            <span className="text-zinc-400">
+                              Category
+                            </span>
+
+                            <span className="font-medium text-right max-w-[180px]">
+                              {selectedTicket.category}
+                            </span>
+                          </div>
+
+                          <div className="flex justify-between">
+                            <span className="text-zinc-400">
+                              Priority
+                            </span>
+
+                            <span className="font-medium">
+                              {selectedTicket.priority}
+                            </span>
+                          </div>
+
+                          <div className="flex justify-between">
+                            <span className="text-zinc-400">
+                              Status
+                            </span>
+
+                            <span className="font-medium">
+                              {selectedTicket.status}
+                            </span>
+                          </div>
+
+                          <div className="flex justify-between">
+                            <span className="text-zinc-400">
+                              Routing
+                            </span>
+
+                            <span className="font-medium">
+                              {selectedTicket.routing}
+                            </span>
+                          </div>
+
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                </div>
+              )}
+
+            </div>
+          )}
+
+          {/* INBOX */}
+          {activePage === "inbox" && (
+            <div>
+
+              <div className="flex items-center justify-between mb-7">
+
+                <div>
+                  <h2 className="text-2xl font-semibold">
+                    Incoming Emails
+                  </h2>
+
+                  <p className="text-sm text-zinc-500 mt-1">
+                    Simulated customer email inbox
+                  </p>
                 </div>
 
                 <button
-                  onClick={saveAgentChanges}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-gray-900 text-white rounded-lg hover:bg-gray-800"
+                  onClick={simulateIncomingEmail}
+                  className="flex items-center gap-2 bg-zinc-900 text-white px-4 py-2.5 rounded-xl text-sm font-medium"
                 >
-                  <CheckCircle2 size={17} />
-                  Save Changes
+                  <Plus size={16} />
+                  Receive Email
                 </button>
+
               </div>
-            </div>
-          </div>
 
-          <div className="space-y-6">
-            <div className="bg-white border border-gray-200 rounded-xl p-6">
-              <h3 className="font-semibold text-gray-900 mb-5">
-                Customer Details
-              </h3>
+              <div className="bg-white border border-zinc-200 rounded-2xl overflow-hidden">
 
-              <div className="space-y-5">
-                <InfoRow
-                  icon={<User size={17} />}
-                  label="Customer"
-                  value={selectedTicket.customer_name}
-                />
+                {incomingEmails.length === 0 ? (
+                  <div className="p-12 text-center">
 
-                <InfoRow
-                  icon={<Mail size={17} />}
-                  label="Email"
-                  value={selectedTicket.customer_email}
-                />
+                    <Mail
+                      size={30}
+                      className="mx-auto text-zinc-300 mb-3"
+                    />
 
-                <InfoRow
-                  icon={<Ticket size={17} />}
-                  label="Order ID"
-                  value={selectedTicket.order_id}
-                />
-
-                <InfoRow
-                  icon={<Clock size={17} />}
-                  label="Created"
-                  value={
-                    selectedTicket.created_at
-                      ? new Date(
-                          selectedTicket.created_at
-                        ).toLocaleString()
-                      : "—"
-                  }
-                />
-              </div>
-            </div>
-
-            {selectedTicket.status === "Pending Customer" ||
-            selectedTicket.status === "Awaiting Customer" ? (
-              <div className="bg-purple-50 border border-purple-200 rounded-xl p-6">
-                <div className="flex items-start gap-3">
-                  <CheckCircle2
-                    size={21}
-                    className="text-purple-600 mt-0.5"
-                  />
-
-                  <div>
-                    <h3 className="font-semibold text-purple-900">
-                      Awaiting Customer Confirmation
-                    </h3>
-
-                    <p className="text-sm text-purple-800 mt-2 leading-6">
-                      The agent has resolved the issue. The ticket
-                      can be closed after the customer confirms
-                      that the issue has been resolved.
+                    <p className="text-sm text-zinc-500">
+                      No incoming emails yet.
                     </p>
+
                   </div>
+                ) : (
+                  <div className="divide-y divide-zinc-100">
+
+                    {incomingEmails.map((email, index) => {
+
+                      const ticket = tickets.find(
+                        (item) =>
+                          item.ticket_id === email.ticket_id
+                      );
+
+                      return (
+                        <div
+                          key={`${email.ticket_id}-${index}`}
+                          className="p-5"
+                        >
+
+                          <div className="flex justify-between">
+
+                            <div>
+
+                              <p className="font-medium">
+                                {email.subject}
+                              </p>
+
+                              <p className="text-sm text-zinc-500 mt-1">
+                                {email.customer_name} ·{" "}
+                                {email.customer_email}
+                              </p>
+
+                            </div>
+
+                            <span className="text-xs text-zinc-400">
+                              {email.received_at}
+                            </span>
+
+                          </div>
+
+                          <p className="text-sm text-zinc-600 mt-3">
+                            {email.message}
+                          </p>
+
+                          {ticket && (
+                            <button
+                              onClick={() => openTicket(ticket)}
+                              className="text-xs font-medium mt-4 text-zinc-700 hover:text-black"
+                            >
+                              Open Ticket →
+                            </button>
+                          )}
+
+                        </div>
+                      );
+                    })}
+
+                  </div>
+                )}
+
+              </div>
+
+            </div>
+          )}
+
+          {/* DASHBOARD */}
+          {activePage === "dashboard" && (
+            <div>
+
+              <h2 className="text-2xl font-semibold">
+                Dashboard
+              </h2>
+
+              <p className="text-sm text-zinc-500 mt-1">
+                TicketIQ analytics and system overview
+              </p>
+
+              <div className="grid grid-cols-4 gap-5 mt-7">
+
+                <div className="bg-white border border-zinc-200 rounded-2xl p-5">
+                  <p className="text-xs text-zinc-400">
+                    TOTAL TICKETS
+                  </p>
+
+                  <p className="text-3xl font-semibold mt-2">
+                    {tickets.length}
+                  </p>
                 </div>
 
-                <button
-                  onClick={confirmResolution}
-                  className="w-full mt-5 px-4 py-2.5 bg-gray-900 text-white rounded-lg hover:bg-gray-800"
-                >
-                  Simulate Customer Confirmation
-                </button>
-              </div>
-            ) : null}
+                <div className="bg-white border border-zinc-200 rounded-2xl p-5">
+                  <p className="text-xs text-zinc-400">
+                    IN PROGRESS
+                  </p>
 
-            {selectedTicket.status === "Closed" &&
-            selectedTicket.customer_confirmed ? (
-              <div className="bg-green-50 border border-green-200 rounded-xl p-6">
-                <div className="flex items-center gap-3">
-                  <CheckCircle2
-                    size={22}
-                    className="text-green-600"
-                  />
+                  <p className="text-3xl font-semibold mt-2">
+                    {
+                      tickets.filter(
+                        (ticket) =>
+                          ticket.status === "In Progress"
+                      ).length
+                    }
+                  </p>
+                </div>
+
+                <div className="bg-white border border-zinc-200 rounded-2xl p-5">
+                  <p className="text-xs text-zinc-400">
+                    PENDING CUSTOMER
+                  </p>
+
+                  <p className="text-3xl font-semibold mt-2">
+                    {
+                      tickets.filter(
+                        (ticket) =>
+                          ticket.status === "Pending Customer"
+                      ).length
+                    }
+                  </p>
+                </div>
+
+                <div className="bg-white border border-zinc-200 rounded-2xl p-5">
+                  <p className="text-xs text-zinc-400">
+                    CLOSED
+                  </p>
+
+                  <p className="text-3xl font-semibold mt-2">
+                    {
+                      tickets.filter(
+                        (ticket) =>
+                          ticket.status === "Closed"
+                      ).length
+                    }
+                  </p>
+                </div>
+
+              </div>
+
+            </div>
+          )}
+
+          {/* SETTINGS */}
+          {activePage === "settings" && (
+            <div>
+
+              <h2 className="text-2xl font-semibold">
+                Settings
+              </h2>
+
+              <p className="text-sm text-zinc-500 mt-1">
+                TicketIQ system configuration
+              </p>
+
+              <div className="bg-white border border-zinc-200 rounded-2xl p-6 mt-7 max-w-2xl">
+
+                <p className="text-xs text-zinc-400 mb-4">
+                  AI ROUTING CONFIGURATION
+                </p>
+
+                <div className="flex items-center justify-between py-3 border-b border-zinc-100">
 
                   <div>
-                    <h3 className="font-semibold text-green-900">
-                      Ticket Closed
-                    </h3>
+                    <p className="text-sm font-medium">
+                      Automatic Routing
+                    </p>
 
-                    <p className="text-sm text-green-800 mt-1">
-                      Customer confirmation received.
+                    <p className="text-xs text-zinc-400 mt-1">
+                      Automatically route high-confidence tickets
                     </p>
                   </div>
+
+                  <span className="text-xs bg-green-100 text-green-700 px-3 py-1.5 rounded-full">
+                    Enabled
+                  </span>
+
                 </div>
+
+                <div className="flex items-center justify-between py-3">
+
+                  <div>
+                    <p className="text-sm font-medium">
+                      Confidence Threshold
+                    </p>
+
+                    <p className="text-xs text-zinc-400 mt-1">
+                      Tickets above 85% confidence are auto-routed
+                    </p>
+                  </div>
+
+                  <span className="font-medium text-sm">
+                    85%
+                  </span>
+
+                </div>
+
               </div>
-            ) : null}
-          </div>
+
+            </div>
+          )}
+
         </div>
-      </div>
-    );
-  };
-
-  const renderSettings = () => (
-    <div className="p-8">
-      <div className="bg-white border border-gray-200 rounded-xl p-6">
-        <div className="flex items-center gap-3">
-          <Settings size={20} />
-
-          <div>
-            <h3 className="font-semibold text-gray-900">
-              TicketIQ Settings
-            </h3>
-
-            <p className="text-sm text-gray-500 mt-1">
-              System configuration and project information.
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-6 grid grid-cols-2 gap-4">
-          <div className="border border-gray-200 rounded-xl p-5">
-            <p className="text-sm text-gray-500">AI Model</p>
-            <p className="font-medium mt-1">
-              DistilBERT
-            </p>
-          </div>
-
-          <div className="border border-gray-200 rounded-xl p-5">
-            <p className="text-sm text-gray-500">Backend</p>
-            <p className="font-medium mt-1">
-              FastAPI
-            </p>
-          </div>
-
-          <div className="border border-gray-200 rounded-xl p-5">
-            <p className="text-sm text-gray-500">Frontend</p>
-            <p className="font-medium mt-1">
-              React + Vite
-            </p>
-          </div>
-
-          <div className="border border-gray-200 rounded-xl p-5">
-            <p className="text-sm text-gray-500">Routing</p>
-            <p className="font-medium mt-1">
-              Confidence-Based
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  let pageTitle = "Dashboard";
-  let pageSubtitle = "Overview of your customer support operations.";
-
-  if (activePage === "tickets") {
-    pageTitle = "Tickets";
-    pageSubtitle =
-      "Manage, review and resolve customer support tickets.";
-  }
-
-  if (activePage === "incoming") {
-    pageTitle = "Incoming Email";
-    pageSubtitle =
-      "Simulate customer emails and create support tickets.";
-  }
-
-  if (activePage === "settings") {
-    pageTitle = "Settings";
-    pageSubtitle = "TicketIQ system configuration.";
-  }
-
-  return (
-    <div className="min-h-screen bg-[#f7f7f6] text-gray-900 flex">
-      {renderSidebar()}
-
-      <div className="flex-1 min-w-0">
-        {renderHeader(pageTitle, pageSubtitle)}
-
-        {selectedTicket ? (
-          renderTicketDetail()
-        ) : activePage === "dashboard" ? (
-          renderDashboard()
-        ) : activePage === "tickets" ? (
-          renderTickets()
-        ) : activePage === "incoming" ? (
-          renderIncomingEmail()
-        ) : (
-          renderSettings()
-        )}
-      </div>
-    </div>
-  );
-}
-
-function SidebarItem({
-  icon,
-  label,
-  active,
-  onClick,
-  count,
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition ${
-        active
-          ? "bg-gray-900 text-white"
-          : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-      }`}
-    >
-      {icon}
-
-      <span className="flex-1 text-left">{label}</span>
-
-      {count !== undefined && (
-        <span
-          className={`text-xs ${
-            active ? "text-gray-300" : "text-gray-400"
-          }`}
-        >
-          {count}
-        </span>
-      )}
-    </button>
-  );
-}
-
-function StatCard({ title, value, icon }) {
-  return (
-    <div className="bg-white border border-gray-200 rounded-xl p-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm text-gray-500">{title}</p>
-
-          <p className="text-2xl font-semibold text-gray-900 mt-2">
-            {value}
-          </p>
-        </div>
-
-        <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
-          {icon}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ChartCard({ title, children }) {
-  return (
-    <div className="bg-white border border-gray-200 rounded-xl p-6">
-      <h3 className="font-semibold text-gray-900 mb-5">
-        {title}
-      </h3>
-
-      {children}
-    </div>
-  );
-}
-
-function InfoRow({ icon, label, value }) {
-  return (
-    <div className="flex items-start gap-3">
-      <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
-        {icon}
-      </div>
-
-      <div className="min-w-0">
-        <p className="text-xs text-gray-500">{label}</p>
-
-        <p className="text-sm font-medium text-gray-900 mt-1 break-words">
-          {value || "—"}
-        </p>
-      </div>
+      </main>
     </div>
   );
 }

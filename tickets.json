@@ -15,11 +15,31 @@
             "delivery delay"
         ],
         "routing": "Auto-Routed",
-        "status": "New",
+        "status": "In Progress",
         "agent_response": "",
         "customer_confirmed": false,
-        "reviewed": true,
-        "created_at": "2026-09-09T09:00:00"
+        "reviewed": false,
+        "created_at": "2026-09-09T09:00:00",
+        "conversation": [
+            {
+                "sender": "customer",
+                "email": "aarav@example.com",
+                "message": "The problem is still happening. I need further help.",
+                "timestamp": "2026-09-09T22:54:05.488240"
+            },
+            {
+                "sender": "customer",
+                "email": "aarav@example.com",
+                "message": "The problem is still happening. I need further help.",
+                "timestamp": "2026-09-09T22:57:47.088310"
+            },
+            {
+                "sender": "ticketiq",
+                "email": "saanvipednekar31@gmail.com",
+                "message": "\nHello Aarav,\n\nThank you for letting us know.\n\nWe have reopened your existing support ticket TKT-100001 and your issue has been sent back for further assistance.\n\nYou do not need to create a new ticket. Please continue replying to this email.\n\nBest regards,\nTicketIQ Support\n",
+                "timestamp": "2026-09-09T22:57:48.615709"
+            }
+        ]
     },
     {
         "ticket_id": "TKT-100002",
@@ -82,11 +102,14 @@
             "Returns, Refunds & Exchanges issue"
         ],
         "routing": "Agent Review",
-        "status": "New",
+        "status": "Pending Customer",
         "agent_response": "",
         "customer_confirmed": false,
         "reviewed": false,
-        "created_at": "2026-09-09T09:15:00"
+        "created_at": "2026-09-09T09:15:00",
+        "resolution_email_sent": true,
+        "resolution_email_sent_at": "2026-09-09T22:02:49.345889",
+        "resolution_response": "Dear Ananya,\n\nWe are pleased to inform you that your support request regarding the return of your product has been resolved. \n\nCould you please confirm whether the issue is now resolved on your end? If you still require assistance, feel free to reply to this email, and our support team will continue to work on your ticket.\n\nBest regards,  \nTicketIQ Support"
     },
     {
         "ticket_id": "TKT-100005",
@@ -196,5 +219,403 @@
         "customer_confirmed": false,
         "reviewed": true,
         "created_at": "2026-09-09T11:31:12.066431"
+    },
+    {
+        "ticket_id": "TKT-8A1D7102",
+        "customer_name": "Alex Johnson",
+        "customer_email": "alex.johnson@example.com",
+        "order_id": "ORD-10021",
+        "subject": "Where is my order?",
+        "message": "Hi, my order was supposed to arrive yesterday but I still haven't received it. The tracking has not updated since two days ago. Please check the status.",
+        "category": "Shipping & Delivery",
+        "category_confidence": 98.47,
+        "priority": "Medium",
+        "priority_score": 30,
+        "priority_reasons": [
+            "Shipping & Delivery issue",
+            "delivery delay"
+        ],
+        "routing": "Auto-Routed",
+        "status": "Pending Customer",
+        "agent_response": "Hi Alex,\n\nThank you for reaching out regarding your order (ORD-10021). I understand that it was supposed to arrive yesterday, and I can see how frustrating it must be not to have received it yet, especially with the tracking not updating.\n\nI will check the status of your shipment and get back to you as soon as possible with more information.\n\nThank you for your patience.\n\nBest regards,  \nTicketIQ Support",
+        "customer_confirmed": false,
+        "reviewed": true,
+        "response_sent": true,
+        "created_at": "2026-09-09T16:23:55.636503",
+        "response_sent_at": "2026-09-09T16:24:01.990730",
+        "resolution_email_sent": true,
+        "resolution_email_sent_at": "2026-09-09T21:50:44.039461",
+        "resolution_response": "Dear Alex,\n\nWe are pleased to inform you that your support request regarding your order has been resolved. \n\nCould you please confirm if everything is now in order? If you still have any concerns, feel free to reply to this email, and our support team will continue to assist you.\n\nBest regards,  \nTicketIQ Support"
+    },
+    {
+        "ticket_id": "TKT-999A3EAE",
+        "customer_name": "Emily Brown",
+        "customer_email": "emily.brown@example.com",
+        "order_id": "ORD-10024",
+        "subject": "Cannot login to my account",
+        "message": "I am unable to log in to my account. I have tried multiple times but it keeps rejecting my login. Please help me access my account.",
+        "category": "Account, Security & Login",
+        "category_confidence": 99.7,
+        "priority": "Medium",
+        "priority_score": 25,
+        "priority_reasons": [
+            "Account, Security & Login issue"
+        ],
+        "routing": "Auto-Routed",
+        "status": "Closed",
+        "agent_response": "Hi Emily,\n\nThank you for reaching out. I understand that you're having trouble logging into your account, and I’m here to help you with that.\n\nPlease ensure that you are using the correct email address and password associated with your account. If you’ve forgotten your password, you can reset it by clicking on the \"Forgot Password?\" link on the login page.\n\nIf you continue to experience issues, I will be happy to assist you further. Please let me know if you need any additional help.\n\nBest regards,  \nTicketIQ Support",
+        "customer_confirmed": true,
+        "reviewed": true,
+        "response_sent": true,
+        "created_at": "2026-09-09T16:24:03.196100",
+        "response_sent_at": "2026-09-09T16:24:07.214442",
+        "resolution_email_sent": true,
+        "resolution_email_sent_at": "2026-09-09T21:54:47.242571",
+        "resolution_response": "Dear Emily,\n\nWe are pleased to inform you that your support request regarding your login issue has been resolved. \n\nCould you please confirm whether you are now able to access your account? If you are still experiencing any difficulties, feel free to reply to this email, and our support team will continue to assist you.\n\nBest regards,  \nTicketIQ Support"
+    },
+    {
+        "ticket_id": "TKT-D85B293A",
+        "customer_name": "Daniel Wilson",
+        "customer_email": "daniel.wilson@example.com",
+        "order_id": "ORD-10025",
+        "subject": "Product stopped working",
+        "message": "The product I purchased stopped working after a few days. I would like to know if it is covered under warranty and what I should do next.",
+        "category": "Product, Warranty & Tech Specs",
+        "category_confidence": 98.64,
+        "priority": "Low",
+        "priority_score": 5,
+        "priority_reasons": [
+            "Product, Warranty & Tech Specs issue"
+        ],
+        "routing": "Auto-Routed",
+        "status": "In Progress",
+        "agent_response": "Dear Daniel,\n\nThank you for reaching out regarding your order (ORD-10025). I'm sorry to hear that the product you purchased has stopped working after just a few days. \n\nTo determine if it is covered under warranty, I will need to review the details of your purchase. Please allow me a moment to check this information, and I will get back to you with the next steps.\n\nThank you for your patience.\n\nBest regards,  \nTicketIQ Support",
+        "customer_confirmed": false,
+        "reviewed": true,
+        "response_sent": true,
+        "created_at": "2026-09-09T16:24:11.195870",
+        "response_sent_at": "2026-09-09T16:24:13.662939"
+    },
+    {
+        "ticket_id": "TKT-650B7C6D",
+        "customer_name": "Alex Johnson",
+        "customer_email": "alex.johnson@example.com",
+        "order_id": "ORD-10021",
+        "subject": "Where is my order?",
+        "message": "Hi, my order was supposed to arrive yesterday but I still haven't received it. The tracking has not updated since two days ago. Please check the status.",
+        "category": "Shipping & Delivery",
+        "category_confidence": 98.47,
+        "priority": "Medium",
+        "priority_score": 30,
+        "priority_reasons": [
+            "Shipping & Delivery issue",
+            "delivery delay"
+        ],
+        "routing": "Auto-Routed",
+        "status": "In Progress",
+        "agent_response": "Hi Alex,\n\nThank you for reaching out regarding your order, ORD-10021. I understand your concern about the delay in delivery and the lack of tracking updates. \n\nI will check the status of your order and get back to you as soon as possible with more information. Thank you for your patience in this matter.\n\nBest regards,  \nTicketIQ Support",
+        "customer_confirmed": false,
+        "reviewed": true,
+        "response_sent": true,
+        "created_at": "2026-09-09T21:02:11.438521",
+        "response_sent_at": "2026-09-09T21:02:15.240576"
+    },
+    {
+        "ticket_id": "TKT-FFCC696A",
+        "customer_name": "Priya Shah",
+        "customer_email": "priya.shah@example.com",
+        "order_id": "ORD-10022",
+        "subject": "Refund has not arrived",
+        "message": "Hello, I returned my product last week and was told that I would receive a refund. I still haven't received the refund. Please check what is happening.",
+        "category": "Returns, Refunds & Exchanges",
+        "category_confidence": 99.96,
+        "priority": "Medium",
+        "priority_score": 30,
+        "priority_reasons": [
+            "Returns, Refunds & Exchanges issue",
+            "refund delay"
+        ],
+        "routing": "Auto-Routed",
+        "status": "In Progress",
+        "agent_response": "Dear Priya,\n\nThank you for reaching out regarding your refund for order ORD-10022. I understand how important it is to receive your refund promptly, and I apologize for the delay.\n\nI will check the status of your refund and get back to you as soon as possible. Thank you for your patience in this matter.\n\nBest regards,  \nTicketIQ Support",
+        "customer_confirmed": false,
+        "reviewed": true,
+        "response_sent": true,
+        "created_at": "2026-09-09T21:02:18.601118",
+        "response_sent_at": "2026-09-09T21:02:21.379742"
+    },
+    {
+        "ticket_id": "TKT-D372262F",
+        "customer_name": "Rahul Mehta",
+        "customer_email": "rahul.mehta@example.com",
+        "order_id": "ORD-10023",
+        "subject": "Payment deducted twice",
+        "message": "My payment seems to have been charged twice for the same order. Please check the duplicate charge and help me get the extra amount refunded.",
+        "category": "Payment & Invoicing",
+        "category_confidence": 99.91,
+        "priority": "High",
+        "priority_score": 50,
+        "priority_reasons": [
+            "Payment & Invoicing issue",
+            "financial impact"
+        ],
+        "routing": "Auto-Routed",
+        "status": "In Progress",
+        "agent_response": "Dear Rahul,\n\nThank you for reaching out to us regarding your payment issue. We have received your request about the payment being deducted twice, and our support team is currently looking into it.\n\nFor your reference, your ticket ID is TKT-D372262F. \n\nWe appreciate your patience as we work to resolve this matter.\n\nBest regards,  \nTicketIQ Support",
+        "customer_confirmed": false,
+        "reviewed": true,
+        "response_sent": true,
+        "response_type": "Automatic Acknowledgement",
+        "created_at": "2026-09-09T21:24:48.676394",
+        "response_sent_at": "2026-09-09T21:24:55.007398"
+    },
+    {
+        "ticket_id": "TKT-66D2D8ED",
+        "customer_name": "Rahul Mehta",
+        "customer_email": "rahul.mehta@example.com",
+        "order_id": "ORD-10023",
+        "subject": "Payment deducted twice",
+        "message": "My payment seems to have been charged twice for the same order. Please check the duplicate charge and help me get the extra amount refunded.",
+        "category": "Payment & Invoicing",
+        "category_confidence": 99.91,
+        "priority": "High",
+        "priority_score": 50,
+        "priority_reasons": [
+            "Payment & Invoicing issue",
+            "financial impact"
+        ],
+        "routing": "Auto-Routed",
+        "status": "In Progress",
+        "agent_response": "Dear Rahul,\n\nThank you for reaching out to us. We have received your support request regarding the payment being deducted twice, and our support team is currently looking into the issue.\n\nFor your reference, your ticket ID is TKT-66D2D8ED. \n\nWe appreciate your patience as we work to resolve this matter.\n\nBest regards,  \nTicketIQ Support",
+        "customer_confirmed": false,
+        "reviewed": true,
+        "response_sent": true,
+        "response_type": "Automatic Acknowledgement",
+        "created_at": "2026-09-09T21:24:55.458362",
+        "response_sent_at": "2026-09-09T21:24:58.528759"
+    },
+    {
+        "ticket_id": "TKT-5B41E632",
+        "customer_name": "Test Customer",
+        "customer_email": "YOUR_EMAIL",
+        "order_id": "ORD-1001",
+        "subject": "My package is delayed",
+        "message": "My order was supposed to arrive yesterday but the tracking has not updated.",
+        "category": "Shipping & Delivery",
+        "category_confidence": 99.45,
+        "priority": "Medium",
+        "priority_score": 30,
+        "priority_reasons": [
+            "Shipping & Delivery issue",
+            "delivery delay"
+        ],
+        "routing": "Auto-Routed",
+        "status": "In Progress",
+        "agent_response": "Subject: Acknowledgment of Your Shipping Inquiry - Ticket ID: TKT-5B41E632\n\nDear [Customer's Name],\n\nThank you for reaching out regarding your order. We understand that your package was expected to arrive yesterday and that the tracking information has not been updated. \n\nPlease rest assured that we are currently looking into this matter and will provide you with an update as soon as possible.\n\nThank you for your patience.\n\nBest regards,  \n[Your Name]  \nCustomer Support Team",
+        "customer_confirmed": false,
+        "reviewed": true,
+        "response_sent": false,
+        "response_sent_at": null,
+        "resolution_email_sent": false,
+        "resolution_email_sent_at": null,
+        "resolution_response": "",
+        "conversation": [
+            {
+                "sender": "customer",
+                "email": "YOUR_EMAIL",
+                "message": "My order was supposed to arrive yesterday but the tracking has not updated.",
+                "timestamp": "2026-09-09T23:17:43.230956"
+            },
+            {
+                "sender": "ticketiq",
+                "email": "saanvipednekar31@gmail.com",
+                "message": "Subject: Acknowledgment of Your Shipping Inquiry - Ticket ID: TKT-5B41E632\n\nDear [Customer's Name],\n\nThank you for reaching out regarding your order. We understand that your package was expected to arrive yesterday and that the tracking information has not been updated. \n\nPlease rest assured that we are currently looking into this matter and will provide you with an update as soon as possible.\n\nThank you for your patience.\n\nBest regards,  \n[Your Name]  \nCustomer Support Team",
+                "timestamp": "2026-09-09T23:17:47.039200"
+            }
+        ],
+        "created_at": "2026-09-09T23:17:43.230956"
+    },
+    {
+        "ticket_id": "TKT-C8FC80EA",
+        "customer_name": "Test Customer",
+        "customer_email": "arnavpatel@exanple.com",
+        "order_id": "ORD-1001",
+        "subject": "My package is delayed",
+        "message": "My order was supposed to arrive yesterday but the tracking has not updated.",
+        "category": "string",
+        "category_confidence": 99.45,
+        "priority": "string",
+        "priority_score": 30,
+        "priority_reasons": [
+            "Shipping & Delivery issue",
+            "delivery delay"
+        ],
+        "routing": "Auto-Routed",
+        "status": "Pending Customer",
+        "agent_response": "string",
+        "customer_confirmed": false,
+        "reviewed": true,
+        "response_sent": true,
+        "response_sent_at": "2026-09-09T23:30:01.114057",
+        "resolution_email_sent": true,
+        "resolution_email_sent_at": "2026-09-09T23:39:22.474467",
+        "resolution_response": "Subject: Resolution of Your Order Issue - Ticket TKT-C8FC80EA\n\nDear Test Customer,\n\nWe are pleased to inform you that your issue regarding the tracking of your order has been resolved. Your ticket, TKT-C8FC80EA, is now awaiting your confirmation.\n\nIf you find that the problem is still not fixed, please do not hesitate to reply to this email.\n\nThank you for your patience.\n\nBest regards,  \nTicketIQ Support Team",
+        "conversation": [
+            {
+                "sender": "customer",
+                "email": "arnavpatel@exanple.com",
+                "message": "My order was supposed to arrive yesterday but the tracking has not updated.",
+                "timestamp": "2026-09-09T23:20:43.037356"
+            },
+            {
+                "sender": "ticketiq",
+                "email": "saanvipednekar31@gmail.com",
+                "message": "Subject: Acknowledgment of Your Shipping Inquiry - Ticket ID: TKT-C8FC80EA\n\nDear [Customer's Name],\n\nThank you for reaching out regarding your order. We understand that your package was expected to arrive yesterday, and the tracking information has not been updated. \n\nPlease rest assured that we are currently looking into this matter and will provide you with an update as soon as possible.\n\nThank you for your patience.\n\nBest regards,  \n[Your Name]  \nCustomer Support Team",
+                "timestamp": "2026-09-09T23:20:47.023222"
+            },
+            {
+                "sender": "agent",
+                "email": "saanvipednekar31@gmail.com",
+                "message": "string",
+                "timestamp": "2026-09-09T23:25:44.778370"
+            },
+            {
+                "sender": "ticketiq",
+                "email": "saanvipednekar31@gmail.com",
+                "message": "Subject: Your Order Issue Has Been Resolved\n\nDear [Customer's Name],\n\nWe are pleased to inform you that your issue regarding the delayed order has been resolved. Your ticket is currently awaiting your confirmation.\n\nIf you find that the problem is still not fixed, please feel free to reply to this email, and we will be happy to assist you further.\n\nThank you for your patience.\n\nBest regards,  \n[Your Name]  \nCustomer Support Team",
+                "timestamp": "2026-09-09T23:26:14.602533"
+            },
+            {
+                "sender": "customer",
+                "email": "arnavpatel@exanple.com",
+                "message": "The issue is still not resolved. My package has not arrived yet.",
+                "timestamp": "2026-09-09T23:28:53.426850"
+            },
+            {
+                "sender": "ticketiq",
+                "email": "saanvipednekar31@gmail.com",
+                "message": "Thank you for letting us know.\n\nWe're sorry that the issue is still not resolved. Your ticket TKT-C8FC80EA has been reopened and our support team will continue working on the same issue.\n\nYou do not need to create a new ticket.",
+                "timestamp": "2026-09-09T23:28:54.349449"
+            },
+            {
+                "sender": "customer",
+                "email": "arnavpatel@exanple.com",
+                "message": "The issue has been resolved. Thank you for your help.",
+                "timestamp": "2026-09-09T23:29:59.886035"
+            },
+            {
+                "sender": "ticketiq",
+                "email": "saanvipednekar31@gmail.com",
+                "message": "Thank you for confirming that your issue has been resolved.\n\nTicket TKT-C8FC80EA is now closed.\n\nIf you need any further assistance, please contact us again.",
+                "timestamp": "2026-09-09T23:30:01.114057"
+            },
+            {
+                "sender": "ticketiq",
+                "email": "saanvipednekar31@gmail.com",
+                "message": "Subject: Resolution of Your Order Issue - Ticket TKT-C8FC80EA\n\nDear Test Customer,\n\nWe are pleased to inform you that your issue regarding the tracking of your order has been resolved. Your ticket, TKT-C8FC80EA, is now awaiting your confirmation.\n\nIf you find that the problem is still not fixed, please do not hesitate to reply to this email.\n\nThank you for your patience.\n\nBest regards,  \nTicketIQ Support Team",
+                "timestamp": "2026-09-09T23:39:22.474467"
+            }
+        ],
+        "created_at": "2026-09-09T23:20:43.037356"
+    },
+    {
+        "ticket_id": "TKT-65F6D000",
+        "customer_name": "Rahul sharmar",
+        "customer_email": "arnavpatel@exanple.com",
+        "order_id": "ORD-1001",
+        "subject": "My package is delayed",
+        "message": "My order was supposed to arrive yesterday but the tracking has not updated.",
+        "category": "Shipping & Delivery",
+        "category_confidence": 99.45,
+        "priority": "Medium",
+        "priority_score": 30,
+        "priority_reasons": [
+            "Shipping & Delivery issue",
+            "delivery delay"
+        ],
+        "routing": "Auto-Routed",
+        "status": "In Progress",
+        "agent_response": "Dear Rahul sharmar,\n\nThank you for reaching out regarding your order. I understand that your package was expected to arrive yesterday, but the tracking information has not been updated. \n\nPlease rest assured that your request is being handled, and we are looking into the matter to provide you with an update as soon as possible.\n\nThank you for your patience.\n\nTicketIQ Support Team",
+        "customer_confirmed": false,
+        "reviewed": true,
+        "response_sent": true,
+        "response_sent_at": "2026-09-09T23:35:08.522694",
+        "resolution_email_sent": false,
+        "resolution_email_sent_at": null,
+        "resolution_response": "",
+        "conversation": [
+            {
+                "sender": "customer",
+                "email": "arnavpatel@exanple.com",
+                "message": "My order was supposed to arrive yesterday but the tracking has not updated.",
+                "timestamp": "2026-09-09T23:35:03.764741"
+            },
+            {
+                "sender": "ticketiq",
+                "email": "saanvipednekar31@gmail.com",
+                "message": "Dear Rahul sharmar,\n\nThank you for reaching out regarding your order. I understand that your package was expected to arrive yesterday, but the tracking information has not been updated. \n\nPlease rest assured that your request is being handled, and we are looking into the matter to provide you with an update as soon as possible.\n\nThank you for your patience.\n\nTicketIQ Support Team",
+                "timestamp": "2026-09-09T23:35:08.522694"
+            }
+        ],
+        "created_at": "2026-09-09T23:35:03.764741"
+    },
+    {
+        "ticket_id": "TKT-E0013215",
+        "customer_name": "Priya Shah",
+        "customer_email": "priyashah@gmail.com",
+        "order_id": "ORD-2002",
+        "subject": "Someone accessed my account",
+        "message": "I think someone has accessed my account and I am worried about unauthorized activity.",
+        "category": "Account, Security & Login",
+        "category_confidence": 96.24,
+        "priority": "Urgent",
+        "priority_score": 85,
+        "priority_reasons": [
+            "Account, Security & Login issue",
+            "critical security/fraud issue"
+        ],
+        "routing": "Auto-Routed",
+        "status": "Pending Customer",
+        "agent_response": "Dear Priya Shah,\n\nThank you for reaching out regarding your concern about unauthorized access to your account. We understand how important this matter is, and we want to assure you that your request, Ticket ID: TKT-E0013215, is being handled with the utmost urgency.\n\nOur team is currently investigating the issue and will keep you updated on our progress.\n\nIf you have any further questions or additional information to share, please feel free to reply to this email.\n\nBest regards,  \nTicketIQ Support Team",
+        "customer_confirmed": false,
+        "reviewed": false,
+        "response_sent": true,
+        "response_sent_at": "2026-09-09T23:46:19.963345",
+        "resolution_email_sent": true,
+        "resolution_email_sent_at": "2026-09-09T23:43:11.239367",
+        "resolution_response": "Subject: Resolution of Your Account Security Issue - Ticket ID: TKT-E0013215\n\nDear Priya Shah,\n\nWe are pleased to inform you that your concern regarding unauthorized access to your account has been resolved. Your ticket, TKT-E0013215, is now awaiting your confirmation.\n\nPlease let us know if the issue is still not fixed, and we will be happy to assist you further.\n\nThank you for your patience.\n\nBest regards,  \nTicketIQ Support Team",
+        "conversation": [
+            {
+                "sender": "customer",
+                "email": "priyashah@gmail.com",
+                "message": "I think someone has accessed my account and I am worried about unauthorized activity.",
+                "timestamp": "2026-09-09T23:37:23.556991"
+            },
+            {
+                "sender": "ticketiq",
+                "email": "saanvipednekar31@gmail.com",
+                "message": "Dear Priya Shah,\n\nThank you for reaching out regarding your concern about unauthorized access to your account. We understand how important this matter is, and we want to assure you that your request, Ticket ID: TKT-E0013215, is being handled with the utmost urgency.\n\nOur team is currently investigating the issue and will keep you updated on our progress.\n\nIf you have any further questions or additional information to share, please feel free to reply to this email.\n\nBest regards,  \nTicketIQ Support Team",
+                "timestamp": "2026-09-09T23:37:28.816924"
+            },
+            {
+                "sender": "ticketiq",
+                "email": "saanvipednekar31@gmail.com",
+                "message": "Subject: Resolution of Your Account Security Issue - Ticket ID: TKT-E0013215\n\nDear Priya Shah,\n\nWe are pleased to inform you that your concern regarding unauthorized access to your account has been resolved. Your ticket, TKT-E0013215, is now awaiting your confirmation.\n\nPlease let us know if the issue is still not fixed, and we will be happy to assist you further.\n\nThank you for your patience.\n\nBest regards,  \nTicketIQ Support Team",
+                "timestamp": "2026-09-09T23:43:11.239367"
+            },
+            {
+                "sender": "customer",
+                "email": "priyashah@gmail.com",
+                "message": "Thanks for the update. I will check and get back to you.",
+                "timestamp": "2026-09-09T23:46:18.540351"
+            },
+            {
+                "sender": "ticketiq",
+                "email": "saanvipednekar31@gmail.com",
+                "message": "Thank you for your reply regarding ticket TKT-E0013215.\n\nWe've received your message and will review it to determine the next steps.\n\nPlease continue replying to this email so that we can keep everything under the same ticket.",
+                "timestamp": "2026-09-09T23:46:19.963345"
+            }
+        ],
+        "created_at": "2026-09-09T23:37:23.556991"
     }
 ]

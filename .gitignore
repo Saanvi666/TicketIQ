@@ -7,3 +7,4 @@ node_modules/
 frontend/dist/
 
 ticketiq_category_model/checkpoint-*/
+ticketiq_category_model/model.safetensors
