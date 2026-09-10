@@ -92,7 +92,10 @@ def save_tickets(tickets):
 
 tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
 
-model = AutoModelForSequenceClassification.from_pretrained(MODEL_PATH)
+model = AutoModelForSequenceClassification.from_pretrained(
+    MODEL_PATH,
+    dtype=torch.float16
+)
 
 category_encoder = joblib.load(
     "ticketiq_category_model/category_encoder.pkl"
